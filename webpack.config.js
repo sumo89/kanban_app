@@ -1,4 +1,4 @@
-	const path = require('path');
+const path = require('path');
 const merge = require('webpack-merge');
 const webpack = require('webpack');
 const NpmInstallPlugin = require('npm-install-webpack-plugin');
@@ -6,60 +6,59 @@ const NpmInstallPlugin = require('npm-install-webpack-plugin');
 const TARGET = process.env.npm_lifecycle_event;
 
 const PATHS = {
-	app: path.join(__dirname, 'app'), 
-	build: path.join(__dirname, 'build')
+  app: path.join(__dirname, 'app'),
+  build: path.join(__dirname, 'build')
 };
 
 const common = {
-// Entry accepts a path or an object of entries. We'll be using the 
-// latter form given it's convenient with more complex configurations.
-entry: {
+  // Entry accepts a path or an object of entries. We'll be using the 
+  // latter form given it's convenient with more complex configurations.
+  entry: {
     app: PATHS.app
-},
-// Add resolve.extensions.
+  },
+  // Add resolve.extensions.
   // '' is needed to allow imports without an extension.
   // Note the .'s before extensions as it will fail to match without!!!
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
 
-output: {
+  output: {
     path: PATHS.build,
     filename: 'bundle.js'
-},
-module:{
-	loaders:[
-	{
-		// Test expects a RegExp! Note the slashes!
-		test: /\.css$/,
-		loaders: ['style', 'css'],
-		// Include accepts either a path or an array of paths.
-		include: PATHS.app
-	},
-	// Set up jsx. This accepts js too thanks to RegExp
-	{
-       	test: /\.jsx?$/,
-       	// Enable caching for improved performance during development
-       	// It uses default OS directory by default. If you need something
-       	// more custom, pass a path to it. I.e., babel?cacheDirectory=<path>
-       	loaders: ['babel?cacheDirectory'],
-       	// Parse only app files! Without this it will go through entire project.
-       	// In addition to being slow, that will most likely result in an error.
-       	include: PATHS.app
-	},
-	{
-		test: /\.jsx?$/,
-		loaders: ['eslint'],
+  },
+  module: {
+    loaders: [{
+        // Test expects a RegExp! Note the slashes!
+        test: /\.css$/,
+        loaders: ['style', 'css'],
+        // Include accepts either a path or an array of paths.
         include: PATHS.app
-	}
-	]
-},
+      },
+      // Set up jsx. This accepts js too thanks to RegExp
+      {
+        test: /\.jsx?$/,
+        // Enable caching for improved performance during development
+        // It uses default OS directory by default. If you need something
+        // more custom, pass a path to it. I.e., babel?cacheDirectory=<path>
+        loaders: ['babel?cacheDirectory'],
+        // Parse only app files! Without this it will go through entire project.
+        // In addition to being slow, that will most likely result in an error.
+        include: PATHS.app
+      }, {
+        test: /\.jsx?$/,
+        loaders: ['eslint'],
+        include: PATHS.app
+      }
+    ]
+  }
+};
 
 
 // Default configuration
-if(TARGET === 'start' || !TARGET) {
-	module.exports = merge(common, {
-	devtool: 'eval-source-map',
+if (TARGET === 'start' || !TARGET) {
+  module.exports = merge(common, {
+    devtool: 'eval-source-map',
     devServer: {
       contentBase: PATHS.build,
       // Enable history API fallback so HTML5 History API based
@@ -80,17 +79,16 @@ if(TARGET === 'start' || !TARGET) {
       // localhost
       host: process.env.HOST,
       port: process.env.PORT
-	},
-	plugins: [
+    },
+    plugins: [
       new webpack.HotModuleReplacementPlugin(),
       new NpmInstallPlugin({
         save: true // --save
       })
     ]
-	});
-};
+  });
 }
 
-if(TARGET === 'build') {
+if (TARGET === 'build') {
   module.exports = merge(common, {});
 }
